@@ -8,6 +8,8 @@ public class SecurityUtil {
 
     private static int id = AbstractBaseEntity.START_SEQ;
 
+    //private static int id = 1;
+
     public static int authUserId() {
         return id;
     }
