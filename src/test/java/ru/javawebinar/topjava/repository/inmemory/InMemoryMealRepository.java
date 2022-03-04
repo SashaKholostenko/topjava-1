@@ -16,7 +16,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository {
@@ -27,7 +26,7 @@ public class InMemoryMealRepository implements MealRepository {
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        InMemoryBaseRepository<Meal> userMeals = new InMemoryBaseRepository<>();
+        var userMeals = new InMemoryBaseRepository<Meal>();
         MealTestData.meals.forEach(userMeals::put);
         usersMealsMap.put(UserTestData.USER_ID, userMeals);
     }
@@ -36,7 +35,7 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public Meal save(Meal meal, int userId) {
         Objects.requireNonNull(meal, "meal must not be null");
-        InMemoryBaseRepository<Meal> meals = usersMealsMap.computeIfAbsent(userId, uId -> new InMemoryBaseRepository<>());
+        var meals = usersMealsMap.computeIfAbsent(userId, uId -> new InMemoryBaseRepository<>());
         return meals.save(meal);
     }
 
@@ -52,13 +51,13 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        InMemoryBaseRepository<Meal> meals = usersMealsMap.get(userId);
+        var meals = usersMealsMap.get(userId);
         return meals != null && meals.delete(id);
     }
 
     @Override
     public Meal get(int id, int userId) {
-        InMemoryBaseRepository<Meal> meals = usersMealsMap.get(userId);
+        var meals = usersMealsMap.get(userId);
         return meals == null ? null : meals.get(id);
     }
 
@@ -73,11 +72,11 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     private List<Meal> filterByPredicate(int userId, Predicate<Meal> filter) {
-        InMemoryBaseRepository<Meal> meals = usersMealsMap.get(userId);
+        var meals = usersMealsMap.get(userId);
         return meals == null ? Collections.emptyList() :
                 meals.getCollection().stream()
                         .filter(filter)
                         .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                        .collect(Collectors.toList());
+                        .toList();
     }
 }
